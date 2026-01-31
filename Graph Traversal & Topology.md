@@ -229,6 +229,79 @@ const findRedundantConnection = (edges) => {
     * Return [2,3].
 * **Alternative Approach:** We could use DFS to check if `nodeB` is reachable from `nodeA` before adding the edge, but that would be $O(N^2)$.
 
+## 5. Surrounded Regions
+[https://leetcode.com/problems/surrounded-regions/](https://leetcode.com/problems/surrounded-regions/)
+
+* **Complexity:** Time: $O(Rows \times Cols)$ | Space: $O(Rows \times Cols)$
+* **Key Intuition:** Instead of identifying surrounded regions, we identify "safe" regions. Any 'O' connected to the border (and its 'O' neighbors) can never be surrounded; every other 'O' must be flipped to 'X'.
+* **The 'Talk Track':**
+    * "I'll use a 'boundary-first' approach: any 'O' on the edge of the board is a root for a 'safe' region that cannot be captured."
+    * "I'll perform a DFS starting from these border 'O's and temporarily mark them with a placeholder, like 'T', to distinguish them from capturable 'O's."
+    * "Finally, I'll iterate through the entire grid one last time to flip remaining 'O's to 'X' and revert 'T' back to 'O'."
+* **Pseudocode:**
+    1. Iterate through the border cells of the `board`.
+    2. If a cell contains 'O', trigger `markAsSafe(currentRow, currentCol)`.
+    3. `markAsSafe` logic: 
+       a. If out of bounds or cell is not 'O', return.
+       b. Change 'O' to 'T'.
+       c. Recurse for all 4 neighbors.
+    4. Re-traverse the entire grid:
+       a. If cell is 'O', change to 'X' (captured).
+       b. If cell is 'T', change back to 'O' (safe).
+* **JavaScript Solution:**
+```javascript
+const solve = (board) => {
+  if (!board || board.length === 0) return;
+
+  const totalRows = board.length;
+  const totalCols = board[0].length;
+
+  const markAsSafe = (currentRow, currentCol) => {
+    const isOutOfBounds = currentRow < 0 || currentCol < 0 || 
+                         currentRow >= totalRows || currentCol >= totalCols;
+    
+    if (isOutOfBounds || board[currentRow][currentCol] !== 'O') {
+      return;
+    }
+
+    // Mark as Temporarily Safe
+    board[currentRow][currentCol] = 'T';
+
+    markAsSafe(currentRow + 1, currentCol);
+    markAsSafe(currentRow - 1, currentCol);
+    markAsSafe(currentRow, currentCol + 1);
+    markAsSafe(currentRow, currentCol - 1);
+  };
+
+  // Step 1: Traverse the border to find non-surroundable regions
+  for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+    markAsSafe(rowIndex, 0);
+    markAsSafe(rowIndex, totalCols - 1);
+  }
+  for (let colIndex = 0; colIndex < totalCols; colIndex++) {
+    markAsSafe(0, colIndex);
+    markAsSafe(totalRows - 1, colIndex);
+  }
+
+  // Step 2: Flip 'O' to 'X' and 'T' back to 'O'
+  for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+    for (let colIndex = 0; colIndex < totalCols; colIndex++) {
+      if (board[rowIndex][colIndex] === 'O') {
+        board[rowIndex][colIndex] = 'X';
+      } else if (board[rowIndex][colIndex] === 'T') {
+        board[rowIndex][colIndex] = 'O';
+      }
+    }
+  }
+};
+```
+* **Dry Run (input = [["X","O"],["O","X"]]):**
+    * Border check finds (0,1) is 'O'. `markAsSafe` changes it to 'T'.
+    * Border check finds (1,0) is 'O'. `markAsSafe` changes it to 'T'.
+    * Second pass: (0,1) is 'T' -> 'O'; (1,0) is 'T' -> 'O'.
+    * Result: [["X","O"],["O","X"]].
+* **Alternative Approach:** We could use a Disjoint Set Union (DSU) by connecting all border 'O's to a dummy "Edge Node" and then checking if each 'O' is connected to that node.
+
 ## 6. Max Area of Island
 [https://leetcode.com/problems/max-area-of-island/](https://leetcode.com/problems/max-area-of-island/)
 
