@@ -229,12 +229,6 @@ const findRedundantConnection = (edges) => {
     * Return [2,3].
 * **Alternative Approach:** We could use DFS to check if `nodeB` is reachable from `nodeA` before adding the edge, but that would be $O(N^2)$.
 
-# Senior Engineer's Study Guide: Graph Traversal & Topology (Part 2)
-
-Continuing our analysis of the **Graph** pattern, this section covers connectivity, shortest paths in unweighted grids (BFS), and border-to-center traversal strategies.
-
----
-
 ## 6. Max Area of Island
 [https://leetcode.com/problems/max-area-of-island/](https://leetcode.com/problems/max-area-of-island/)
 
