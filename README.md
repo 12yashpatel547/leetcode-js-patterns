@@ -72,6 +72,11 @@ For 2026, top-tier technical screens are focusing on **Edge Case Resilience**. E
 
 ---
 
+## 🙏 Credits & Acknowledgments
+Special thanks to [SamsonPN/Neetcode](https://github.com/SamsonPN/Neetcode) for providing the original algorithmic roadmap that inspired this project. We recommend their platform for anyone starting their LeetCode journey.
+
+---
+
 ## 🤝 How to Contribute
 
 1.  **Fork** the repository.
