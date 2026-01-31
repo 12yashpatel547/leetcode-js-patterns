@@ -1,0 +1,333 @@
+# Senior Engineer's Study Guide: Bit Manipulation
+
+The **Bit Manipulation** pattern involves using bitwise operators (`&`, `|`, `^`, `~`, `<<`, `>>`) to solve problems with optimal time and space. As a senior engineer, the focus is on recognizing properties like **XOR cancellation** ($x \oplus x = 0$) and **bit masking** to avoid the overhead of higher-level arithmetic or data structures.
+
+---
+
+## 1. Single Number
+[https://leetcode.com/problems/single-number/](https://leetcode.com/problems/single-number/)
+
+* **Complexity:** Time: $O(n)$ | Space: $O(1)$
+* **Key Intuition:** The XOR operator is commutative and associative, and crucially, $x \oplus x = 0$. By XORing all elements together, every pair of duplicate numbers cancels out, leaving only the single unique number.
+* **The 'Talk Track':**
+    * "I'll leverage the XOR property where any number XORed with itself is zero, and any number XORed with zero is itself."
+    * "This allows us to solve the problem in a single pass without any extra memory, which is more efficient than using a Hash Set."
+    * "Since the order doesn't matter for XOR, the result will naturally be the unique element regardless of its position in the array."
+* **Pseudocode:**
+    1. Initialize `xorResult` to 0.
+    2. Iterate through every `currentNumber` in the `nums` array.
+    3. Perform `xorResult = xorResult ^ currentNumber`.
+    4. Return `xorResult`.
+* **JavaScript Solution:**
+```javascript
+const singleNumber = (nums) => {
+  let xorResult = 0;
+
+  for (const currentNumber of nums) {
+    xorResult ^= currentNumber;
+  }
+
+  return xorResult;
+};
+```
+* **Dry Run (input = [1, 2, 1]):**
+    * `xorResult` starts at 0.
+    * Loop 1: $0 \oplus 1 = 1$.
+    * Loop 2: $1 \oplus 2 = 3$ (binary `01` $\oplus$ `10` = `11`).
+    * Loop 3: $3 \oplus 1 = 2$ (binary `11` $\oplus$ `01` = `10`).
+    * Result: 2.
+* **Alternative Approach:** We could use a Hash Map to count frequencies, but that would increase space complexity to $O(n)$.
+
+---
+
+## 2. Number of 1 Bits
+[https://leetcode.com/problems/number-of-1-bits/](https://leetcode.com/problems/number-of-1-bits/)
+
+* **Complexity:** Time: $O(1)$ (specifically $O(\text{bits set to 1})$) | Space: $O(1)$
+* **Key Intuition:** We can use the Brian Kernighan’s Algorithm trick: `n & (n - 1)` always clears the least significant bit set to 1.
+* **The 'Talk Track':**
+    * "Instead of checking every single bit position, I'll use a bitwise trick to jump directly between 1-bits."
+    * "The operation `n & (n - 1)` effectively drops the lowest set bit, allowing us to finish the loop in exactly as many iterations as there are 1s."
+    * "This is more performant than a standard 32-bit shift loop when the bitmask is sparse."
+* **Pseudocode:**
+    1. Initialize `oneBitCount` to 0.
+    2. While `inputNumber` is not 0:
+       a. Perform `inputNumber = inputNumber & (inputNumber - 1)`.
+       b. Increment `oneBitCount`.
+    3. Return `oneBitCount`.
+* **JavaScript Solution:**
+```javascript
+const hammingWeight = (inputNumber) => {
+  let oneBitCount = 0;
+  let currentNumber = inputNumber;
+
+  while (currentNumber !== 0) {
+    currentNumber = currentNumber & (currentNumber - 1);
+    oneBitCount++;
+  }
+
+  return oneBitCount;
+};
+```
+* **Dry Run (input = 3 (binary 11)):**
+    * `count` = 0.
+    * $3 \ \& \ 2$ (binary $11 \ \& \ 10$) = 2. `count` = 1.
+    * $2 \ \& \ 1$ (binary $10 \ \& \ 01$) = 0. `count` = 2.
+    * Result: 2.
+* **Alternative Approach:** We could convert the number to a binary string and filter for '1', but string conversion is significantly slower than bitwise logic.
+
+---
+
+## 3. Counting Bits
+[https://leetcode.com/problems/counting-bits/](https://leetcode.com/problems/counting-bits/)
+
+* **Complexity:** Time: $O(n)$ | Space: $O(n)$
+* **Key Intuition:** We can use Dynamic Programming based on the observation that `bitsCount[i]` is equal to `bitsCount[i >> 1]` plus 1 if `i` is odd, or 0 if `i` is even.
+* **The 'Talk Track':**
+    * "I'll solve this using a single pass with Dynamic Programming by building on previously calculated results."
+    * "The number of bits in `i` is essentially the number of bits in `i/2` (shifting right) plus the parity of the current index."
+    * "This approach avoids redundant bit-counting for every integer, reaching linear time complexity."
+* **Pseudocode:**
+    1. Initialize an array `resultArray` of size `n + 1` filled with 0.
+    2. Iterate from `currentIndex = 1` up to `n`.
+    3. `resultArray[currentIndex] = resultArray[currentIndex >> 1] + (currentIndex % 2)`.
+    4. Return `resultArray`.
+* **JavaScript Solution:**
+```javascript
+const countBits = (targetLimit) => {
+  const bitsDistribution = new Array(targetLimit + 1).fill(0);
+
+  for (let currentIndex = 1; currentIndex <= targetLimit; currentIndex++) {
+    // Number of 1s in i = 1s in (i/2) + last bit of i
+    bitsDistribution[currentIndex] = bitsDistribution[currentIndex >> 1] + (currentIndex & 1);
+  }
+
+  return bitsDistribution;
+};
+```
+* **Dry Run (input = 2):**
+    * `arr` = [0, 0, 0].
+    * `i` = 1: `arr[1]` = `arr[0]` + 1 = 1.
+    * `i` = 2: `arr[2]` = `arr[1]` + 0 = 1.
+    * Result: [0, 1, 1].
+* **Alternative Approach:** We could call the 'Number of 1 Bits' function for every number, but that would be $O(n \log n)$ or $O(32n)$.
+
+---
+
+## 4. Reverse Bits
+[https://leetcode.com/problems/reverse-bits/](https://leetcode.com/problems/reverse-bits/)
+
+* **Complexity:** Time: $O(1)$ (fixed 32 iterations) | Space: $O(1)$
+* **Key Intuition:** We iterate through the 32 bits of the input, shifting our result left while shifting the input right, effectively "pumping" bits from one end to the other.
+* **The 'Talk Track':**
+    * "I will process all 32 bits to ensure leading zeros in the input become trailing zeros in the result."
+    * "By using the unsigned right shift `>>>`, I can handle the sign bit correctly in JavaScript's 32-bit signed integer environment."
+    * "This is essentially a bitwise 'string reversal' where we use a bitmask to isolate the current bit."
+* **Pseudocode:**
+    1. Initialize `reversedResult` to 0.
+    2. Loop 32 times:
+       a. Shift `reversedResult` left by 1.
+       b. If the current LSB of `input` is 1, add 1 to `reversedResult`.
+       c. Shift `input` right by 1.
+    3. Return `reversedResult` (unsigned).
+* **JavaScript Solution:**
+```javascript
+const reverseBits = (inputNumber) => {
+  let reversedResult = 0;
+  let remainingBits = inputNumber;
+
+  for (let bitIndex = 0; bitIndex < 32; bitIndex++) {
+    // Shift result to make room for the new bit
+    reversedResult = (reversedResult << 1) | (remainingBits & 1);
+    // Use unsigned shift to handle 32nd bit correctly
+    remainingBits >>>= 1;
+  }
+
+  // Use unsigned shift 0 to force return as an unsigned integer
+  return reversedResult >>> 0;
+};
+```
+* **Dry Run (input = 1 (binary 0...01)):**
+    * Loop 1: `res` = 1, `input` = 0.
+    * Loops 2-32: `res` shifts left 31 more times.
+    * Result: $2^{31}$.
+* **Alternative Approach:** We could convert to a string, reverse, and parse, but bitwise operations are significantly more memory-efficient.
+
+---
+
+## 5. Missing Number
+[https://leetcode.com/problems/missing-number/](https://leetcode.com/problems/missing-number/)
+
+* **Complexity:** Time: $O(n)$ | Space: $O(1)$
+* **Key Intuition:** Similar to Single Number, we use XOR to cancel out all indices and all values; the one value that doesn't have a pair is the missing number.
+* **The 'Talk Track':**
+    * "I'll use XOR to find the discrepancy between the expected set of numbers and the actual array."
+    * "I will XOR the result with every index and every value in the array; since all numbers except one appear as both an index and a value, they will cancel out."
+    * "This is a clever alternative to the Gauss Summation formula which avoids potential integer overflow in languages with fixed-size integers."
+* **Pseudocode:**
+    1. Initialize `missingCandidate` to `nums.length`.
+    2. Iterate from `currentIndex = 0` to `nums.length - 1`.
+    3. Perform `missingCandidate ^= currentIndex ^ nums[currentIndex]`.
+    4. Return `missingCandidate`.
+* **JavaScript Solution:**
+```javascript
+const missingNumber = (nums) => {
+  const collectionLength = nums.length;
+  let missingValue = collectionLength;
+
+  for (let currentIndex = 0; currentIndex < collectionLength; currentIndex++) {
+    missingValue ^= currentIndex ^ nums[currentIndex];
+  }
+
+  return missingValue;
+};
+```
+* **Dry Run (input = [0, 1]):**
+    * `missing` = 2.
+    * `i` = 0: `missing` = $2 \oplus 0 \oplus 0 = 2$.
+    * `i` = 1: `missing` = $2 \oplus 1 \oplus 1 = 2$.
+    * Result: 2.
+* **Alternative Approach:** We could calculate the expected sum $\frac{n(n+1)}{2}$ and subtract the actual sum, which is also $O(n)$ time and $O(1)$ space.
+
+---
+
+## 6. Sum of Two Integers
+[https://leetcode.com/problems/sum-of-two-integers/](https://leetcode.com/problems/sum-of-two-integers/)
+
+* **Complexity:** Time: $O(1)$ (max 32 iterations) | Space: $O(1)$
+* **Key Intuition:** We simulate addition using XOR for the sum (without carry) and AND with a left shift for the carry.
+* **The 'Talk Track':**
+    * "I'll implement a half-adder logic at a bitwise level."
+    * "XOR gives us the sum bits where no carry is involved, while AND shifted left identifies where carries need to be applied to the next bit position."
+    * "We repeat this until there are no carries left to process."
+* **Pseudocode:**
+    1. While `integerB` is not 0:
+       a. `sumWithoutCarry = integerA ^ integerB`.
+       b. `carryValue = (integerA & integerB) << 1`.
+       c. `integerA = sumWithoutCarry`.
+       d. `integerB = carryValue`.
+    2. Return `integerA`.
+* **JavaScript Solution:**
+```javascript
+const getSum = (integerA, integerB) => {
+  let currentSum = integerA;
+  let currentCarry = integerB;
+
+  while (currentCarry !== 0) {
+    const temporarySum = currentSum ^ currentCarry;
+    currentCarry = (currentSum & currentCarry) << 1;
+    currentSum = temporarySum;
+  }
+
+  return currentSum;
+};
+```
+* **Dry Run (input = [1, 2]):**
+    * `sum` = 1 (01), `carry` = 2 (10).
+    * Iteration 1: $1 \oplus 2 = 3$ (11). Carry ($01 \ \& \ 10$) << 1 = 0.
+    * Result: 3.
+* **Alternative Approach:** Using the `+` operator is obviously excluded by the problem constraints.
+
+---
+
+## 7. [Latest 2026] Bitwise ORs of Subarrays
+[https://leetcode.com/problems/bitwise-ors-of-subarrays/](https://leetcode.com/problems/bitwise-ors-of-subarrays/)
+
+* **Complexity:** Time: $O(32n)$ | Space: $O(32n)$
+* **Key Intuition:** For each element, we calculate the possible OR results of subarrays ending at that element. Because the OR result is non-decreasing and capped at 32 bits, the set of possible results is small.
+* **The 'Talk Track':**
+    * "A brute force $O(n^2)$ is too slow, but we can observe that for any fixed end-index, there are at most 30-32 distinct OR values."
+    * "I'll maintain a set of results seen so far at the current position to propagate to the next."
+    * "This is a Dynamic Programming approach optimized by bitwise properties."
+* **Pseudocode:**
+    1. Initialize `totalResultSet` and `currentPossibleSet`.
+    2. For each `number` in `nums`:
+       a. `nextPossibleSet` contains `number` OR'd with every value in `currentPossibleSet`, plus `number` itself.
+       b. Update `totalResultSet` with `nextPossibleSet`.
+    3. Return `totalResultSet.size`.
+* **JavaScript Solution:**
+```javascript
+const subarrayBitwiseORs = (nums) => {
+  const globalDistinctORs = new Set();
+  let previousPossibleORs = new Set();
+
+  for (const currentNumber of nums) {
+    const currentPossibleORs = new Set();
+    currentPossibleORs.add(currentNumber);
+
+    for (const previousORValue of previousPossibleORs) {
+      currentPossibleORs.add(previousORValue | currentNumber);
+    }
+
+    for (const finalORValue of currentPossibleORs) {
+      globalDistinctORs.add(finalORValue);
+    }
+    previousPossibleORs = currentPossibleORs;
+  }
+
+  return globalDistinctORs.size;
+};
+```
+* **Dry Run (input = [1, 2]):**
+    * `num` = 1: `prev` = {1}, `global` = {1}.
+    * `num` = 2: `curr` = {2, 2|1} = {2, 3}. `global` = {1, 2, 3}.
+    * Result: 3.
+* **Alternative Approach:** Brute force $O(n^2)$ checking all subarrays would fail on large datasets.
+
+---
+
+## 8. [Latest 2026] Minimum Flips to Make a OR b Equal to c
+[https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/](https://leetcode.com/problems/minimum-flips-to-make-a-or-b-equal-to-c/)
+
+* **Complexity:** Time: $O(1)$ (fixed 32 iterations) | Space: $O(1)$
+* **Key Intuition:** We examine bit-by-bit. If the target bit in `c` is 0, both `a` and `b` bits must be 0 (flip any 1s). If `c` is 1, at least one of `a` or `b` must be 1.
+* **The 'Talk Track':**
+    * "I will iterate bit-by-bit and compare the state of `(a | b)` against the target `c`."
+    * "If `c`'s bit is 0, every '1' in either `a` or `b` is a required flip."
+    * "If `c`'s bit is 1 and both `a` and `b` have 0, we only need one flip to satisfy the OR condition."
+* **Pseudocode:**
+    1. Loop while `a`, `b`, or `c` is not 0:
+       a. Isolate LSB for all three.
+       b. If `bitC === 0`: `flipCount += bitA + bitB`.
+       c. If `bitC === 1`: if `bitA === 0 && bitB === 0`, `flipCount += 1`.
+       d. Shift all three right.
+    2. Return `flipCount`.
+* **JavaScript Solution:**
+```javascript
+const minFlips = (valA, valB, valC) => {
+  let totalFlipsRequired = 0;
+  let remainingA = valA;
+  let remainingB = valB;
+  let remainingC = valC;
+
+  while (remainingA > 0 || remainingB > 0 || remainingC > 0) {
+    const bitA = remainingA & 1;
+    const bitB = remainingB & 1;
+    const bitC = remainingC & 1;
+
+    if (bitC === 0) {
+      // Both bitA and bitB must be 0
+      totalFlipsRequired += bitA + bitB;
+    } else {
+      // At least one of bitA or bitB must be 1
+      if (bitA === 0 && bitB === 0) {
+        totalFlipsRequired += 1;
+      }
+    }
+
+    remainingA >>= 1;
+    remainingB >>= 1;
+    remainingC >>= 1;
+  }
+
+  return totalFlipsRequired;
+};
+```
+* **Dry Run (a=2(10), b=6(110), c=5(101)):**
+    * Bit 0: `a`=0, `b`=0, `c`=1. `count` = 1 (flip `a` or `b` to 1).
+    * Bit 1: `a`=1, `b`=1, `c`=0. `count` = 1 + (1+1) = 3.
+    * Bit 2: `a`=0, `b`=1, `c`=1. Already satisfied.
+    * Result: 3.
+* **Alternative Approach:** We could use `(a | b) ^ c` to find mismatched bits, but we still need to check if `c` was 0 to determine if both `a` and `b` needed flipping.
+
+---
