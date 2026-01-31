@@ -3,7 +3,6 @@
 A comprehensive repository of LeetCode solutions organized by **Algorithmic Patterns**, implemented in **Semantic ES6+ JavaScript**. This project focuses on high-level technical interview preparation, prioritizing code readability, senior-level communication, and 2026 hiring standards.
 
 [![Language](https://img.shields.io/badge/language-JavaScript%20(ES6+)-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
