@@ -32,9 +32,17 @@ const containsDuplicate = (nums) => {
   return false;
 };
 ```
-* **Dry Run (nums = [1, 2], target = 3):** * Loop 1: `currentNumber` = 1. `seenNumbers` is empty. Add 1.
-    * Loop 2: `currentNumber` = 2. `seenNumbers` has {1}. Add 2.
-    * Loop ends, return `false`.
+### Example-Based Dry Run (Example 1)
+**Input:** `nums = [1, 2, 3, 1]`  
+**Output:** `true`
+
+| Iteration | `currentNumber` | `seenElements` (Before) | `seenElements.has()` | Action |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | 1 | `{}` | false | Add 1 |
+| 2 | 2 | `{1}` | false | Add 2 |
+| 3 | 3 | `{1, 2}` | false | Add 3 |
+| 4 | 1 | `{1, 2, 3}` | true | **Return true** |
+
 * **Alternative Approach:** We could sort the array first ($O(n \log n)$ time) and check adjacent elements, which would reduce space complexity to $O(1)$.
 
 ---
