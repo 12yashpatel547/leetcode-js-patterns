@@ -321,7 +321,16 @@ const isValidSudoku = (board) => {
   return true;
 };
 ```
-* **Dry Run:** Check 1st cell '5' at (0,0). Add to `row[0]`, `col[0]`, `box[0]`. If another '5' appears in any of these, fail.
+### Example-Based Dry Run (Example 1 Snippet)
+**Input:** `board = [["5","3",".",".","7",".",".",".","."], ...]`
+**Output:** `true`
+
+| Row | Col | Value | Box ID | `seenConstraints` Addition | Result |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 0 | 0 | "5" | "0-0" | `row-0-5`, `column-0-5`, `box-0-0-5` | Continue |
+| 0 | 1 | "3" | "0-0" | `row-0-3`, `column-1-3`, `box-0-0-3` | Continue |
+| 0 | 4 | "7" | "0-1" | `row-0-7`, `column-4-7`, `box-0-1-7` | Continue |
+
 * **Alternative Approach:** We could use bitmasking to represent the sets for even more memory efficiency.
 
 ---
@@ -357,9 +366,17 @@ const decode = (str) => {
   return result;
 };
 ```
-* **Dry Run (["a"]):**
-    * Encode: `1#a`.
-    * Decode: Find '#', length is 1. Jump 1 from index 2. Get "a".
+### Example-Based Dry Run (Example 1)
+**Input:** `["lint","code","love","you"]`
+**Output:** `["lint","code","love","you"]`
+
+| `currentPointer` | `delimiterIndex` | `stringLength` | `targetString` | New `currentPointer` |
+| :--- | :--- | :--- | :--- | :--- |
+| 0 | 1 | 4 | "lint" | 6 |
+| 6 | 7 | 4 | "code" | 12 |
+| 12 | 13 | 4 | "love" | 18 |
+| 18 | 19 | 3 | "you" | 23 (End) |
+
 * **Alternative Approach:** We could use non-printable ASCII characters as delimiters, but that is less robust than length-prefixing.
 
 ---
