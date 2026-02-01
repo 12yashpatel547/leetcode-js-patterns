@@ -78,10 +78,18 @@ const isAnagram = (stringA, stringB) => {
   return Object.values(charCount).every((count) => count === 0);
 };
 ```
-* **Dry Run (s = "a", t = "b"):**
-    * `charCount` after 'a': `{a: 1}`.
-    * `charCount` after 'b': `{a: 1, b: -1}`.
-    * Final check fails. Return `false`.
+### Example-Based Dry Run (Example 1)
+**Input:** `s = "anagram", t = "nagaram"`
+**Output:** `true`
+
+| Step | Current Char | `characterCounts` State |
+| :--- | :--- | :--- |
+| Init | - | `{}` |
+| Loop 1 (s) | 'a' | `{a: 3, n: 1, g: 1, r: 1, m: 1}` (after all iterations) |
+| Loop 2 (t) | 'n' | `{a: 3, n: 0, g: 1, r: 1, m: 1}` |
+| Loop 2 (t) | 'a' | `{a: 2, n: 0, g: 1, r: 1, m: 1}` |
+| ... | ... | All counts reach 0 |
+
 * **Alternative Approach:** We could sort both strings and compare them, but that would result in $O(n \log n)$ time complexity.
 
 ---
@@ -115,9 +123,15 @@ const twoSum = (nums, target) => {
   }
 };
 ```
-* **Dry Run (nums = [1, 2], target = 3):**
-    * `currentIndex` 0: `currentNum` 1, `complement` 2. Not in Map. Map: `{1 => 0}`.
-    * `currentIndex` 1: `currentNum` 2, `complement` 1. Found in Map! Return `[0, 1]`.
+### Example-Based Dry Run (Example 1)
+**Input:** `nums = [2, 7, 11, 15], target = 9`
+**Output:** `[0, 1]`
+
+| `currentIndex` | `currentNumber` | `complementValue` | `Map.has(complement)` | Map State (After) |
+| :--- | :--- | :--- | :--- | :--- |
+| 0 | 2 | 7 | False | `{2: 0}` |
+| 1 | 7 | 2 | True | **Return [0, 1]** |
+
 * **Alternative Approach:** If the array were sorted, we could use the Two-Pointer technique to achieve $O(1)$ space.
 
 ---
@@ -152,10 +166,16 @@ const groupAnagrams = (strs) => {
   return Object.values(groups);
 };
 ```
-* **Dry Run (strs = ["a", "a"]):**
-    * "a" -> sortedKey "a". `groups`: `{"a": ["a"]}`.
-    * "a" -> sortedKey "a". `groups`: `{"a": ["a", "a"]}`.
-    * Return `[["a", "a"]]`.
+### Example-Based Dry Run (Example 1)
+**Input:** `strs = ["eat","tea","tan","ate","nat","bat"]`  
+**Output:** `[["bat"],["nat","tan"],["ate","eat","tea"]]`
+
+| `currentWord` | `sortedKey` | `anagramGroups` (Update) |
+| :--- | :--- | :--- |
+| "eat" | "aet" | `{"aet": ["eat"]}` |
+| "tea" | "aet" | `{"aet": ["eat", "tea"]}` |
+| "tan" | "ant" | `{"ant": ["tan"], "aet": [...]}` |
+
 * **Alternative Approach:** We could use a frequency count of 26 characters as a string key to achieve $O(n \cdot k)$ time.
 
 ---
@@ -196,10 +216,16 @@ const topKFrequent = (nums, k) => {
   return result.slice(0, k);
 };
 ```
-* **Dry Run (nums = [1], k = 1):**
-    * `counts`: `{1: 1}`.
-    * `buckets`: `[[], [1]]`.
-    * Loop `freqIndex` 1: push 1. Return `[1]`.
+### Example-Based Dry Run (Example 1)
+**Input:** `nums = [1,1,1,2,2,3], k = 2`  
+**Output:** `[1, 2]`
+
+| Step | State |
+| :--- | :--- |
+| Map | `{1: 3, 2: 2, 3: 1}` |
+| Buckets | `[[], [3], [2], [1], [], [], []]` |
+| Result (Reverse Scan) | Index 3 -> `[1]`, Index 2 -> `[1, 2]`. Return. |
+
 * **Alternative Approach:** A Min-Heap of size $k$ would solve this in $O(n \log k)$ time if memory was extremely constrained.
 
 ---
@@ -238,11 +264,18 @@ const productExceptSelf = (nums) => {
   return result;
 };
 ```
-* **Dry Run (nums = [1, 2]):**
-    * Prefix: `result` = [1, 1].
-    * Suffix: index 1: `result[1]` * 1 = 1. `suffix` becomes 2.
-    * Suffix: index 0: `result[0]` * 2 = 2.
-    * Final: `[2, 1]`.
+### Example-Based Dry Run (Example 1)
+**Input:** `nums = [1,2,3,4]`  
+**Output:** `[24,12,8,6]`
+
+| Pass | Index | Accumulator | `result` array |
+| :--- | :--- | :--- | :--- |
+| Left | 0, 1, 2, 3 | - | `[1, 1, 2, 6]` |
+| Right | 3 | 1 | `[1, 1, 2, 6]` |
+| Right | 2 | 4 | `[1, 1, 8, 6]` |
+| Right | 1 | 12 | `[1, 12, 8, 6]` |
+| Right | 0 | 24 | `[24, 12, 8, 6]` |
+
 * **Alternative Approach:** Using two separate arrays for prefix and suffix products makes the logic clearer but uses $O(n)$ extra space.
 
 ---
