@@ -168,14 +168,18 @@ const groupAnagrams = (strs) => {
 ```
 ### Example-Based Dry Run (Example 1)
 **Input:** `strs = ["eat","tea","tan","ate","nat","bat"]`  
-**Output:** `[["bat"],["nat","tan"],["ate","eat","tea"]]`
+**Expected Output:** `[["eat","tea","ate"],["tan","nat"],["bat"]]`
 
-| `currentWord` | `sortedKey` | `anagramGroups` (Update) |
-| :--- | :--- | :--- |
-| "eat" | "aet" | `{"aet": ["eat"]}` |
-| "tea" | "aet" | `{"aet": ["eat", "tea"]}` |
-| "tan" | "ant" | `{"ant": ["tan"], "aet": [...]}` |
+| Iteration | `currentStr` | `sortedKey` | `groups` (Before) | Evaluation `!groups[sortedKey]` | Action / State Change |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | "eat" | "aet" | `{}` | True | Initialize `groups["aet"] = []`; Push "eat" |
+| 2 | "tea" | "aet" | `{"aet": ["eat"]}` | False | Push "tea" to `groups["aet"]` |
+| 3 | "tan" | "ant" | `{"aet": ["eat", "tea"]}` | True | Initialize `groups["ant"] = []`; Push "tan" |
+| 4 | "ate" | "aet" | `{"aet": ["eat", "tea"], "ant": ["tan"]}` | False | Push "ate" to `groups["aet"]` |
+| 5 | "nat" | "ant" | `{"aet": ["eat", "tea", "ate"], "ant": ["tan"]}` | False | Push "nat" to `groups["ant"]` |
+| 6 | "bat" | "abt" | `{"aet": ["eat", "tea", "ate"], "ant": ["tan", "nat"]}` | True | Initialize `groups["abt"] = []`; Push "bat" |
 
+**Final Return:** `[["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]`
 * **Alternative Approach:** We could use a frequency count of 26 characters as a string key to achieve $O(n \cdot k)$ time.
 
 ---
