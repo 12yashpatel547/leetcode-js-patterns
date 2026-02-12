@@ -221,14 +221,42 @@ const topKFrequent = (nums, k) => {
 };
 ```
 ### Example-Based Dry Run (Example 1)
-**Input:** `nums = [1,1,1,2,2,3], k = 2`  
-**Output:** `[1, 2]`
+**Input:** `nums = [1,1,1,2,2,3]`, `k = 2`
+**Expected Output:** `[1, 2]`
 
-| Step | State |
-| :--- | :--- |
-| Map | `{1: 3, 2: 2, 3: 1}` |
-| Buckets | `[[], [3], [2], [1], [], [], []]` |
-| Result (Reverse Scan) | Index 3 -> `[1]`, Index 2 -> `[1, 2]`. Return. |
+#### Phase 1: Frequency Mapping (Count occurrences)
+
+
+| Iteration | `num` | `counts` (Before) | Action / State Change |
+| :--- | :--- | :--- | :--- |
+| 1 | 1 | `{}` | Set `1: 1` |
+| 2 | 1 | `{1: 1}` | Set `1: 2` |
+| 3 | 1 | `{1: 2}` | Set `1: 3` |
+| 4 | 2 | `{1: 3}` | Set `2: 1` |
+| 5 | 2 | `{1: 3, 2: 1}` | Set `2: 2` |
+| 6 | 3 | `{1: 3, 2: 2}` | Set `3: 1` |
+
+#### Phase 2: Bucket Sorting (Map frequencies to indices)
+
+
+| Iteration | `num` | `freq` | `buckets` (Before) | Action / State Change |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | 1 | 3 | `[[],[],[],[],[],[],[]]` | Push `1` to `buckets[3]` |
+| 2 | 2 | 2 | `[[],[],[],[1],[],[],[]]` | Push `2` to `buckets[2]` |
+| 3 | 3 | 1 | `[[],[],[2],[1],[],[],[]]` | Push `3` to `buckets[1]` |
+
+#### Phase 3: Result Assembly (Gather top k)
+
+| Iteration | `freqIndex` | `result.length < k` | `buckets[freqIndex]` | `result` (Before) | Action / State Change |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 6 | 0 < 2 (True) | `[]` | `[]` | Push nothing |
+| 2 | 5 | 0 < 2 (True) | `[]` | `[]` | Push nothing |
+| 3 | 4 | 0 < 2 (True) | `[]` | `[]` | Push nothing |
+| 4 | 3 | 0 < 2 (True) | `[1]` | `[]` | Push `1`; `result` is `[1]` |
+| 5 | 2 | 1 < 2 (True) | `[2]` | `[1]` | Push `2`; `result` is `[1, 2]` |
+| 6 | 1 | 2 < 2 (False) | N/A | `[1, 2]` | Loop terminates |
+
+**Final Return:** `[1, 2]`
 
 * **Alternative Approach:** A Min-Heap of size $k$ would solve this in $O(n \log k)$ time if memory was extremely constrained.
 
@@ -269,16 +297,30 @@ const productExceptSelf = (nums) => {
 };
 ```
 ### Example-Based Dry Run (Example 1)
-**Input:** `nums = [1,2,3,4]`  
-**Output:** `[24,12,8,6]`
+**Input:** `nums = [1, 2, 3, 4]`
+**Expected Output:** `[24, 12, 8, 6]`
 
-| Pass | Index | Accumulator | `result` array |
-| :--- | :--- | :--- | :--- |
-| Left | 0, 1, 2, 3 | - | `[1, 1, 2, 6]` |
-| Right | 3 | 1 | `[1, 1, 2, 6]` |
-| Right | 2 | 4 | `[1, 1, 8, 6]` |
-| Right | 1 | 12 | `[1, 12, 8, 6]` |
-| Right | 0 | 24 | `[24, 12, 8, 6]` |
+#### Phase 1: Prefix Pass (Left-to-Right)
+
+
+| Iteration | `currentIndex` | `nums[currentIndex]` | `prefixProduct` (Before) | `result` (Before) | Action / State Change |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 0 | 1 | 1 | `[1, 1, 1, 1]` | `result[0] = 1`; `prefixProduct` becomes 1 |
+| 2 | 1 | 2 | 1 | `[1, 1, 1, 1]` | `result[1] = 1`; `prefixProduct` becomes 2 |
+| 3 | 2 | 3 | 2 | `[1, 1, 1, 1]` | `result[2] = 2`; `prefixProduct` becomes 6 |
+| 4 | 3 | 4 | 6 | `[1, 1, 2, 1]` | `result[3] = 6`; `prefixProduct` becomes 24 |
+
+#### Phase 2: Suffix Pass (Right-to-Left)
+
+
+| Iteration | `currentIndex` | `nums[currentIndex]` | `suffixProduct` (Before) | `result` (Before) | Action / State Change |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | 3 | 4 | 1 | `[1, 1, 2, 6]` | `result[3]` (6 * 1) = 6; `suffixProduct` becomes 4 |
+| 2 | 2 | 3 | 4 | `[1, 1, 2, 6]` | `result[2]` (2 * 4) = 8; `suffixProduct` becomes 12 |
+| 3 | 1 | 2 | 12 | `[1, 1, 8, 6]` | `result[1]` (1 * 12) = 12; `suffixProduct` becomes 24 |
+| 4 | 0 | 1 | 24 | `[1, 12, 8, 6]` | `result[0]` (1 * 24) = 24; `suffixProduct` becomes 24 |
+
+**Final Return:** `[24, 12, 8, 6]`
 
 * **Alternative Approach:** Using two separate arrays for prefix and suffix products makes the logic clearer but uses $O(n)$ extra space.
 
